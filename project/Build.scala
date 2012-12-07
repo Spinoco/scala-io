@@ -4,7 +4,7 @@ import scala.xml.transform._
 
 object BuildConstants {
   val organization = "com.github.scala-incubator.io"
-  val version = "0.5.0"
+  val version = "0.5.0-RC3"
   val armVersion = "1.2"
   val armScalaVersion = "2.10.0-RC3"
   val akkaVersion = "2.1-RC3"
@@ -79,7 +79,7 @@ object ScalaIoBuild extends Build {
     name := "scala-io-core",
     resolvers += "java.net repo" at "http://download.java.net/maven/2/",
     libraryDependencies += "com.jsuereth" % ("scala-arm_"+BuildConstants.armScalaVersion) % BuildConstants.armVersion,
-    libraryDependencies += "javax.transaction" % "jta" % "1.0.1B",
+    libraryDependencies += "javax.transaction" % "jta" % "1.1",
     publishArtifact in Test := true
   )
   lazy val coreProject = Project("core", file("core")).
