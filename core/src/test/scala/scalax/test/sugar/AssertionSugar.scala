@@ -11,12 +11,11 @@ import java.io.FileOutputStream
 import java.io.OutputStreamWriter
 import java.io.Writer
 
-import scala.reflect.Manifest
+import reflect.{ClassTag, Manifest}
 
 import org.junit.Assert.fail
 import org.junit.Assume.assumeTrue
-import scala.reflect.mirror._
-import scala.reflect.api._
+import scala.reflect.runtime.{universe => ru}
 
 
 object AssertionSugar {
@@ -27,23 +26,23 @@ trait AssertionSugar {
   def assumeNotWindows = {
     assumeTrue(!AssertionSugar.isWindows)
   }
-  def ignoring[E <: Throwable](test : => Unit)(implicit m:ConcreteTypeTag[E]) : Unit = {
+  def ignoring[E <: Throwable](test : => Unit)(implicit m: ClassTag[E]) : Unit = {
     val error = try {
       test
       Some("Expected "+m.toString+" but instead no exception was raised")
     }catch{
-      case e if (m.erasure.isAssignableFrom(e.getClass)) => None
+      case e if (m.runtimeClass.isAssignableFrom(e.getClass)) => None
       case e => throw e;
     }
   }
-  def intercept[E <: Throwable : ConcreteTypeTag](test : => Unit) : Unit = {
-    val m = implicitly[ConcreteTypeTag[E]]
+  def intercept[E <: Throwable : ClassTag ](test : => Unit): Unit = {
+    val m = implicitly[ClassTag[E]]
     val error = try {
       test
       Some("Expected "+m.toString+" but instead no exception was raised")
     }catch{
-      case e:AssertionError if m.erasure != classOf[AssertionError] => throw e
-      case e if (m.erasure.isAssignableFrom(e.getClass)) => None
+      case e:AssertionError if m.runtimeClass != classOf[AssertionError] => throw e
+      case e if (m.runtimeClass.isAssignableFrom(e.getClass)) => None
       case e =>
         e.printStackTrace
         Some("Expected "+m.toString+" but instead got "+e.getClass)
